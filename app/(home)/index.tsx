@@ -7,11 +7,12 @@ import { StatusBar } from "expo-status-bar";
 import * as FileSystem from "expo-file-system";
 import FolderCard from "@/components/folderCard";
 import { AddButton } from "@/components/addButton";
-import { CreateFolderOverlay } from "@/components/createFolderModal";
+import { RecordingModal } from "@/components/createFolderModal";
 
 interface FolderData {
   name: string;
   subfolderCount: number;
+  recordingUri?: string;
 }
 
 const dataFolder = process.env.EXPO_PUBLIC_DATA_FOLDER!;
@@ -27,7 +28,7 @@ export default function Page() {
   const [folders, setFolders] = useState<FolderData[]>([]);
   const userAvatarUrl = user?.hasImage
     ? user?.imageUrl
-    : "../../assets/images/react-logo.png";
+    : require("../../assets/images/react-logo.png");
   const [showCreateFolder, setShowCreateFolder] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -48,8 +49,12 @@ export default function Page() {
 
         for (const folder of folderList) {
           const folderPath = `${documentsFolder}/${folder}`;
-          const subfolders = await FileSystem.readDirectoryAsync(folderPath);
-          folderData.push({ name: folder, subfolderCount: subfolders.length });
+          // const subfolders = await FileSystem.readDirectoryAsync(folderPath);
+          folderData.push({
+            name: folder,
+            subfolderCount: 0,
+            recordingUri: `${documentsFolder}/${folder}`,
+          });
         }
 
         setFolders(folderData);
@@ -72,7 +77,7 @@ export default function Page() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FDE047" }}>
-      <View className="size-max bg-white">
+      <View className="w-full h-full bg-white">
         <StatusBar style="dark" translucent={false} />
         <SignedIn>
           <View className="flex-row justify-between items-center p-4 bg-yellow-300 rounded-b-3xl">
@@ -90,6 +95,7 @@ export default function Page() {
                 key={index}
                 name={folder.name}
                 count={folder.subfolderCount}
+                recordingUri={folder.recordingUri}
               />
             ))}
           </View>
@@ -99,12 +105,12 @@ export default function Page() {
             }}
             className="absolute right-10 bottom-10"
           />
-          <CreateFolderOverlay
+          <RecordingModal
             visible={showCreateFolder}
             onClose={() => {
               setShowCreateFolder(false);
             }}
-            onFolderCreated={handleFolderCreated}
+            onRecordingCreated={handleFolderCreated}
           />
         </SignedIn>
         <SignedOut>
