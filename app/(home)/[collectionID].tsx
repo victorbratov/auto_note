@@ -32,6 +32,7 @@ export default function CollectionPage() {
     try {
       await player.loadAudio(uri);
       await player.play();
+      await player.cleanup();
     } catch (error) {
       console.error("Failed to play audio:", error);
     }

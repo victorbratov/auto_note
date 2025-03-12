@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-expo";
 import { Text, View, Image, TouchableOpacity, ScrollView } from "react-native";
@@ -38,7 +38,7 @@ export default function Page() {
             </TouchableOpacity>
           </View>
         </View>
-        <ScrollView className="p-4 flex-1">
+        <ScrollView className="p-4 flex-1 gap-4">
           {data.map((collection) => (
             <Link key={collection.id} href={`/${collection.id}`} asChild>
               <TouchableOpacity>
