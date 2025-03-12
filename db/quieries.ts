@@ -1,11 +1,7 @@
 import { eq } from "drizzle-orm";
 import { collections, records } from "./schema";
 import { Collection, InsertCollection, Record, InsertRecord } from "./schema";
-import { openDatabaseSync } from "expo-sqlite";
-import { drizzle } from "drizzle-orm/expo-sqlite";
-
-const expoDb = openDatabaseSync("db.db");
-const db = drizzle(expoDb);
+import { db } from "./db";
 
 // Collection queries
 export async function getAllCollections(): Promise<Collection[]> {

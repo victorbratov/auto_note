@@ -1,3 +1,6 @@
+import { Pressable } from "react-native";
+import { Link } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, View, ScrollView } from "react-native";
@@ -14,13 +17,10 @@ export default function CollectionPage() {
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const collectionIDnum = Number(collectionID);
-
   useEffect(() => {
     const loadCollectionAndRecords = async () => {
       try {
-        console.log(collectionID);
-        const collectionData = await getCollectionById(Number(collectionIDnum));
+        const collectionData = await getCollectionById(Number(collectionID));
         setCollection(collectionData);
 
         const recordsData = await getRecordsByCollectionId(
@@ -57,7 +57,12 @@ export default function CollectionPage() {
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" backgroundColor="#FDE047" />
       <View className="bg-yellow-300 rounded-b-3xl">
-        <View className="p-4">
+        <View className="flex-row items-center p-4">
+          <Link href="../" asChild>
+            <Pressable className="mr-4">
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </Pressable>
+          </Link>
           <Text className="text-black text-3xl font-bold">
             {collection.name}
           </Text>
