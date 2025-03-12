@@ -4,32 +4,22 @@ import { SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-expo";
 import { Text, View, Image, TouchableOpacity, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import * as NavigationBar from "expo-navigation-bar";
-
 import Card from "@/components/Card";
-import { Collection } from "@/db/schema";
-import { getAllCollections } from "@/db/quieries";
+import * as schema from "@/db/schema";
+import { AddButton } from "@/components/addButton";
+import { NewCollectionModal } from "@/components/NewCollectionModal";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useCollections } from "@/db/hooks";
 
 export default function Page() {
   const { user, isLoaded } = useUser();
   const { signOut } = useAuth();
-  const [collections, setCollections] = useState<Collection[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const userAvatarUrl = user?.hasImage
     ? user?.imageUrl
     : "../../assets/images/react-logo.png";
 
-  useEffect(() => {
-    const loadCollections = async () => {
-      try {
-        const result = await getAllCollections();
-        setCollections(result);
-      } catch (error) {
-        console.error("Error loading collections:", error);
-      }
-    };
-
-    loadCollections();
-  }, []);
+  const { data } = useCollections();
 
   if (!isLoaded) {
     return <Text>Loading...</Text>;
@@ -51,7 +41,7 @@ export default function Page() {
           </View>
         </View>
         <ScrollView className="p-4 flex-1">
-          {collections.map((collection) => (
+          {data.map((collection) => (
             <Link key={collection.id} href={`/${collection.id}`} asChild>
               <TouchableOpacity>
                 <Card title={collection.name} className="mb-4">
@@ -63,6 +53,18 @@ export default function Page() {
             </Link>
           ))}
         </ScrollView>
+        <AddButton
+          onPress={() => {
+            setIsModalVisible(true);
+          }}
+          className="absolute bottom-10 right-10"
+        />
+        <NewCollectionModal
+          visible={isModalVisible}
+          onClose={() => {
+            setIsModalVisible(false);
+          }}
+        />
       </SignedIn>
       <SignedOut>
         <View className="flex-1 justify-center items-center p-4">

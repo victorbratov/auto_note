@@ -9,10 +9,7 @@ import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import migrations from "@/drizzle/migrations";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { View, Text } from "react-native";
-
-const expoDb = openDatabaseSync("db.db");
-
-const db = drizzle(expoDb);
+import { db, expoDb } from "@/db/db";
 
 export default function RootLayout() {
   const { success, error } = useMigrations(db, migrations);
