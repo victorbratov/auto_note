@@ -6,44 +6,18 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, View, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-
 import Card from "@/components/Card";
-import { Collection, Record } from "@/db/schema";
-import { getCollectionById, getRecordsByCollectionId } from "@/db/quieries";
+import { useCollection, useRecordsByCollection } from "@/db/hooks";
+import { NewRecordModal } from "@/components/NewRecordModal";
+import { AddButton } from "@/components/addButton";
+import { AudioPlayer } from "@/audio/player";
 
 export default function CollectionPage() {
   const { collectionID } = useLocalSearchParams();
-  const [collection, setCollection] = useState<Collection>();
-  const [records, setRecords] = useState<Record[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  useEffect(() => {
-    const loadCollectionAndRecords = async () => {
-      try {
-        const collectionData = await getCollectionById(Number(collectionID));
-        setCollection(collectionData);
-
-        const recordsData = await getRecordsByCollectionId(
-          Number(collectionID),
-        );
-        setRecords(recordsData);
-      } catch (error) {
-        console.error("Error loading collection data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadCollectionAndRecords();
-  }, [collectionID]);
-
-  if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center">
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+  const collection = useCollection(Number(collectionID));
+  const { data } = useRecordsByCollection(Number(collectionID));
 
   if (!collection) {
     return (
@@ -52,6 +26,16 @@ export default function CollectionPage() {
       </View>
     );
   }
+
+  const playAudio = async (uri: string) => {
+    const player = new AudioPlayer();
+    try {
+      await player.loadAudio(uri);
+      await player.play();
+    } catch (error) {
+      console.error("Failed to play audio:", error);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -72,13 +56,20 @@ export default function CollectionPage() {
         </View>
       </View>
       <ScrollView className="p-4 flex-1">
-        {records.length === 0 ? (
+        {data.length === 0 ? (
           <Text className="text-center text-gray-500 mt-4">
             No records in this collection
           </Text>
         ) : (
-          records.map((record) => (
-            <Card key={record.id} title={record.name} className="mb-4">
+          data.map((record) => (
+            <Card
+              key={record.id}
+              title={record.name}
+              className="mb-4"
+              onPress={() => {
+                playAudio(record.audioUri!);
+              }}
+            >
               <Text className="text-gray-600">
                 {record.audioUri || "No content"}
               </Text>
@@ -86,6 +77,19 @@ export default function CollectionPage() {
           ))
         )}
       </ScrollView>
+      <AddButton
+        onPress={() => {
+          setIsModalVisible(true);
+        }}
+        className="absolute bottom-10 right-10"
+      />
+      <NewRecordModal
+        onClose={() => {
+          setIsModalVisible(false);
+        }}
+        visible={isModalVisible}
+        collectionId={Number(collectionID)}
+      />
     </SafeAreaView>
   );
 }

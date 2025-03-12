@@ -5,10 +5,8 @@ import { Text, View, Image, TouchableOpacity, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Card from "@/components/Card";
-import * as schema from "@/db/schema";
 import { AddButton } from "@/components/addButton";
 import { NewCollectionModal } from "@/components/NewCollectionModal";
-import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useCollections } from "@/db/hooks";
 
 export default function Page() {
