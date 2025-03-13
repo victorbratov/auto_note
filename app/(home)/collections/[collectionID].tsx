@@ -53,11 +53,7 @@ export default function CollectionPage() {
           </Text>
         ) : (
           data.map((record) => (
-            <Link
-              key={record.id}
-              href={`/${collectionID}/${record.id}`}
-              asChild
-            >
+            <Link key={record.id} href={`/records/${record.id}`} asChild>
               <TouchableOpacity>
                 <Card title={record.name} className="mb-4">
                   <Text className="text-gray-600">

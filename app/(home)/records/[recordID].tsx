@@ -13,7 +13,9 @@ import { AudioPlayer } from "@/audio/player";
 export default function RecordPage() {
   const { recordID } = useLocalSearchParams();
   const [record, setRecord] = useState<Record | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackStatus, setPlaybackStatus] = useState<"playing" | "paused">(
+    "paused",
+  );
   const [audioPlayer] = useState(() => new AudioPlayer());
 
   useEffect(() => {
@@ -22,6 +24,9 @@ export default function RecordPage() {
       if (recordData) {
         setRecord(recordData);
         if (recordData.audioUri) {
+          audioPlayer.setStatusListener((status) => {
+            setPlaybackStatus(status);
+          });
           await audioPlayer.loadAudio(recordData.audioUri);
         }
       }
@@ -37,12 +42,11 @@ export default function RecordPage() {
     if (!record?.audioUri) return;
 
     try {
-      if (isPlaying) {
+      if (playbackStatus === "playing") {
         await audioPlayer.pause();
       } else {
         await audioPlayer.play();
       }
-      setIsPlaying(!isPlaying);
     } catch (error) {
       console.error("Failed to toggle play/pause:", error);
     }
@@ -77,7 +81,7 @@ export default function RecordPage() {
             className="w-16 h-16 bg-yellow-300 rounded-full items-center justify-center"
           >
             <Ionicons
-              name={isPlaying ? "pause" : "play"}
+              name={playbackStatus === "playing" ? "pause" : "play"}
               size={32}
               color="black"
             />

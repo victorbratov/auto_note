@@ -36,4 +36,7 @@ yarn-error.*
 
 app-example
 
+# build
+android/
+
 .npmrc

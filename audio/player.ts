@@ -1,8 +1,20 @@
-import { Audio } from 'expo-av';
+import {
+  Audio,
+  type AVPlaybackStatus,
+  type AVPlaybackStatusSuccess,
+} from "expo-av";
+
+type PlaybackStatus = "playing" | "paused";
+type PlaybackStatusListener = (status: PlaybackStatus) => void;
 
 export class AudioPlayer {
   private sound: Audio.Sound | null = null;
   private _volume: number = 1.0;
+  private _statusListener?: PlaybackStatusListener;
+
+  setStatusListener(listener: PlaybackStatusListener) {
+    this._statusListener = listener;
+  }
 
   async loadAudio(uri: string): Promise<void> {
     try {
@@ -11,11 +23,20 @@ export class AudioPlayer {
       }
       const { sound } = await Audio.Sound.createAsync(
         { uri },
-        { volume: this._volume }
+        { volume: this._volume },
+        (status) => {
+          if (!status.isLoaded) return;
+
+          if (status.didJustFinish) {
+            console.log("Adio finished", this._statusListener);
+            sound.setPositionAsync(0);
+            this._statusListener?.("paused");
+          }
+        },
       );
       this.sound = sound;
     } catch (error) {
-      console.error('Error loading audio:', error);
+      console.error("Error loading audio:", error);
       throw error;
     }
   }
@@ -23,11 +44,12 @@ export class AudioPlayer {
   async play(): Promise<void> {
     try {
       if (!this.sound) {
-        throw new Error('No audio loaded');
+        throw new Error("No audio loaded");
       }
       await this.sound.playAsync();
+      this._statusListener?.("playing");
     } catch (error) {
-      console.error('Error playing audio:', error);
+      console.error("Error playing audio:", error);
       throw error;
     }
   }
@@ -35,11 +57,12 @@ export class AudioPlayer {
   async pause(): Promise<void> {
     try {
       if (!this.sound) {
-        throw new Error('No audio loaded');
+        throw new Error("No audio loaded");
       }
       await this.sound.pauseAsync();
+      this._statusListener?.("paused");
     } catch (error) {
-      console.error('Error pausing audio:', error);
+      console.error("Error pausing audio:", error);
       throw error;
     }
   }
@@ -47,12 +70,13 @@ export class AudioPlayer {
   async stop(): Promise<void> {
     try {
       if (!this.sound) {
-        throw new Error('No audio loaded');
+        throw new Error("No audio loaded");
       }
       await this.sound.stopAsync();
       await this.sound.setPositionAsync(0);
+      this._statusListener?.("paused");
     } catch (error) {
-      console.error('Error stopping audio:', error);
+      console.error("Error stopping audio:", error);
       throw error;
     }
   }
@@ -60,14 +84,14 @@ export class AudioPlayer {
   async setVolume(volume: number): Promise<void> {
     try {
       if (volume < 0 || volume > 1) {
-        throw new Error('Volume must be between 0 and 1');
+        throw new Error("Volume must be between 0 and 1");
       }
       this._volume = volume;
       if (this.sound) {
         await this.sound.setVolumeAsync(volume);
       }
     } catch (error) {
-      console.error('Error setting volume:', error);
+      console.error("Error setting volume:", error);
       throw error;
     }
   }
@@ -79,7 +103,7 @@ export class AudioPlayer {
         this.sound = null;
       }
     } catch (error) {
-      console.error('Error cleaning up audio:', error);
+      console.error("Error cleaning up audio:", error);
       throw error;
     }
   }
