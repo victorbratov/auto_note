@@ -1,51 +1,119 @@
-import { Text, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { ScrollView, ActivityIndicator, Text, View } from "react-native";
 import Markdown from "react-native-markdown-display";
-import { useState, useEffect } from "react";
+//@ts-ignore
+import MathView from "react-native-math-view";
 
-interface MarkdownBoxProps {
+const MarkdownIt = require("markdown-it");
+const mathjax = require("markdown-it-mathjax3");
+const MarkdownInstance = MarkdownIt().use(mathjax);
+
+type MarkdownBoxProps = {
   uri: string;
-}
+};
 
-export function MarkdownBox({ uri }: MarkdownBoxProps) {
+var LatexCount = 0;
+
+const renderLatex = (latex: string) => {
+  try {
+    // Clean the LaTeX string if needed
+    const cleanLatex = latex.trim();
+
+    return (
+      <View
+        key={++LatexCount}
+        style={{ marginVertical: 5, alignItems: "center", width: "100%" }}
+      >
+        <MathView
+          math={cleanLatex}
+          style={{ alignSelf: "center" }}
+          resizeMode="contain"
+          onError={(error: any) =>
+            console.error("LaTeX rendering error:", error)
+          }
+        />
+      </View>
+    );
+  } catch (err) {
+    console.error("Error rendering LaTeX:", err);
+    return <Text style={{ color: "red" }}>Error rendering math: {latex}</Text>;
+  }
+};
+
+export const MarkdownBox: React.FC<MarkdownBoxProps> = ({ uri }) => {
   const [content, setContent] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!uri) return;
-
     const fetchContent = async () => {
       try {
+        setLoading(true);
         const response = await fetch(uri);
+
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(
+            `Failed to fetch: ${response.status} ${response.statusText}`,
+          );
         }
+
         const text = await response.text();
         setContent(text);
+        setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load content");
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred",
+        );
         console.error("Error fetching markdown content:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchContent();
+    if (uri) {
+      fetchContent();
+    }
   }, [uri]);
 
-  if (!uri) return null;
-  if (error) return (
-    <View className="mb-6">
-      <Text className="text-lg font-bold mb-2">Notes</Text>
-      <View className="bg-red-50 p-4 rounded-lg">
-        <Text className="text-red-600">Error loading content: {error}</Text>
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
       </View>
-    </View>
-  );
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ padding: 10 }}>
+        <Text style={{ color: "red" }}>Error loading content: {error}</Text>
+      </View>
+    );
+  }
+
+  if (!content) {
+    return (
+      <View style={{ padding: 10 }}>
+        <Text>No content available to display</Text>
+      </View>
+    );
+  }
+
+  // Define custom rules for rendering math content
+  const rules = {
+    math_inline: (node: any) => {
+      return renderLatex(node.content);
+    },
+    math_block: (node: any) => {
+      return renderLatex(node.content);
+    },
+  };
 
   return (
-    <View className="mb-6">
-      <Text className="text-lg font-bold mb-2">Notes</Text>
-      <View className="bg-gray-50 p-4 rounded-lg">
-        <Markdown>{content}</Markdown>
-      </View>
-    </View>
+    <ScrollView style={{ padding: 10 }}>
+      <Markdown rules={rules} markdownit={MarkdownInstance}>
+        {content}
+      </Markdown>
+    </ScrollView>
   );
-}
+};

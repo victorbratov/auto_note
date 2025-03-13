@@ -30,19 +30,20 @@ export function TextBox({ uri }: TextBoxProps) {
   }, [uri]);
 
   if (!uri) return null;
-  if (error) return (
-    <View className="mb-6">
-      <Text className="text-lg font-bold mb-2">Transcription</Text>
-      <View className="bg-red-50 p-4 rounded-lg">
-        <Text className="text-red-600">Error loading content: {error}</Text>
+  if (error)
+    return (
+      <View className="mb-6">
+        <Text className="text-lg font-bold mb-2">Transcription</Text>
+        <View className="bg-red-50 p-4 rounded-lg">
+          <Text className="text-red-600">Error loading content: {error}</Text>
+        </View>
       </View>
-    </View>
-  );
+    );
 
   return (
     <View className="mb-6">
       <Text className="text-lg font-bold mb-2">Transcription</Text>
-      <View className="bg-gray-50 p-4 rounded-lg">
+      <View className="bg-gray-100 p-4 rounded-lg">
         <Text>{content}</Text>
       </View>
     </View>

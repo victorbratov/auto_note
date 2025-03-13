@@ -8,20 +8,19 @@ async function createMockFiles(recordName: string) {
   // Ensure directories exist
   await FileSystem.makeDirectoryAsync(
     `${FileSystem.documentDirectory}markdown`,
-    { intermediates: true }
+    { intermediates: true },
   );
-  await FileSystem.makeDirectoryAsync(
-    `${FileSystem.documentDirectory}text`,
-    { intermediates: true }
-  );
+  await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}text`, {
+    intermediates: true,
+  });
 
   const timestamp = new Date().toISOString();
-  const sanitizedName = recordName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  const sanitizedName = recordName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
 
   // Create markdown file
   const mdPath = `${FileSystem.documentDirectory}markdown/${sanitizedName}.md`;
-  const mdContent = `# ${recordName}\n\nCreated on: ${timestamp}\n\n## Summary\nThis is an auto-generated markdown file for the record "${recordName}"\n\n## Notes\n- First point\n- Second point`;
-  
+  const mdContent = `# ${recordName}\n\nCreated on: ${timestamp}\n\n## Summary\nThis is an auto-generated markdown file for the record "${recordName}"\n\n## Math Examples\n\nSimple equation: $a+b=c$\n\nQuadratic formula: $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$\n\nIntegral calculus: $\\int_{a}^{b} f(x) \\, dx = F(b) - F(a)$\n\nMaxwell's equations: $\\nabla \\times \\vec{E} = -\\frac{\\partial \\vec{B}}{\\partial t}$\n\n## Notes\n- First point\n- Second point`;
+
   // Create text file
   const txtPath = `${FileSystem.documentDirectory}text/${sanitizedName}.txt`;
   const txtContent = `${recordName}\n\nCreated: ${timestamp}\n\nTranscription will appear here.`;
@@ -31,7 +30,7 @@ async function createMockFiles(recordName: string) {
 
   return {
     markdownUri: mdPath,
-    textUri: txtPath
+    textUri: txtPath,
   };
 }
 interface NewRecordModalProps {
