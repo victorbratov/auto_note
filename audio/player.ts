@@ -96,6 +96,33 @@ export class AudioPlayer {
     }
   }
 
+  async getProgress(): Promise<{ position: number; duration: number }> {
+    try {
+      if (!this.sound) {
+        throw new Error("No audio loaded");
+      }
+      const status = await this.sound.getStatusAsync() as AVPlaybackStatusSuccess;
+      return {
+        position: status.positionMillis,
+        duration: status.durationMillis || 0,
+      };
+    } catch (error) {
+      console.error("Error getting progress:", error);
+      throw error;
+    }
+  }
+  
+  async seekTo(position: number): Promise<void> {
+    try {
+      if (!this.sound) {
+        throw new Error("No audio loaded");
+      }
+      await this.sound.setPositionAsync(position);
+    } catch (error) {
+      console.error("Error seeking:", error);
+      throw error;
+    }
+  }
   async cleanup(): Promise<void> {
     try {
       if (this.sound) {

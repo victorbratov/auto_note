@@ -10,8 +10,7 @@ import { getRecordById } from "@/db/quieries";
 import { Record } from "@/db/schema";
 import { AudioPlayer } from "@/components/AudioPlayer";
 
-
-import { ScrollView } from 'react-native';
+import { ScrollView } from "react-native";
 import { MarkdownBox } from "@/components/MarkdownBox";
 import { TextBox } from "@/components/TextBox";
 
@@ -52,7 +51,7 @@ export default function RecordPage() {
 
       <ScrollView className="flex-1 p-4">
         <AudioPlayer audioUri={record.audioUri} />
-
+        <View className="h-px bg-gray-200 w-full mb-6" />
         <MarkdownBox uri={record.markdownUri!} />
         <TextBox uri={record.textUri!} />
       </ScrollView>
