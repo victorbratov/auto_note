@@ -40,7 +40,11 @@ export default function Page() {
         </View>
         <ScrollView className="p-4 flex-1 gap-4">
           {data.map((collection) => (
-            <Link key={collection.id} href={`/${collection.id}`} asChild>
+            <Link
+              key={collection.id}
+              href={`/collections/${collection.id}`}
+              asChild
+            >
               <TouchableOpacity>
                 <Card title={collection.name} className="mb-4">
                   <Text className="text-gray-600">

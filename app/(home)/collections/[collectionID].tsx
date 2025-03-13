@@ -1,4 +1,4 @@
-import { Pressable } from "react-native";
+import { Pressable, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ import { AudioPlayer } from "@/audio/player";
 export default function CollectionPage() {
   const { collectionID } = useLocalSearchParams();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const player = new AudioPlayer();
 
   const collection = useCollection(Number(collectionID));
   const { data } = useRecordsByCollection(Number(collectionID));
@@ -26,17 +27,6 @@ export default function CollectionPage() {
       </View>
     );
   }
-
-  const playAudio = async (uri: string) => {
-    const player = new AudioPlayer();
-    try {
-      await player.loadAudio(uri);
-      await player.play();
-      await player.cleanup();
-    } catch (error) {
-      console.error("Failed to play audio:", error);
-    }
-  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -63,18 +53,19 @@ export default function CollectionPage() {
           </Text>
         ) : (
           data.map((record) => (
-            <Card
+            <Link
               key={record.id}
-              title={record.name}
-              className="mb-4"
-              onPress={() => {
-                playAudio(record.audioUri!);
-              }}
+              href={`/${collectionID}/${record.id}`}
+              asChild
             >
-              <Text className="text-gray-600">
-                {record.audioUri || "No content"}
-              </Text>
-            </Card>
+              <TouchableOpacity>
+                <Card title={record.name} className="mb-4">
+                  <Text className="text-gray-600">
+                    {record.audioUri || "No content"}
+                  </Text>
+                </Card>
+              </TouchableOpacity>
+            </Link>
           ))
         )}
       </ScrollView>
