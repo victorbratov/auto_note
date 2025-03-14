@@ -41,11 +41,8 @@ export function TextBox({ uri }: TextBoxProps) {
     );
 
   return (
-    <View className="mb-6">
-      <Text className="text-lg font-bold mb-2">Transcription</Text>
-      <View className="bg-gray-100 p-4 rounded-lg">
-        <Text>{content}</Text>
-      </View>
+    <View className="bg-gray-100 p-4 rounded-lg">
+      <Text>{content}</Text>
     </View>
   );
 }

@@ -1,10 +1,9 @@
 import { Pressable, TouchableOpacity } from "react-native";
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, View, ScrollView } from "react-native";
-import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Card from "@/components/Card";
 import { useCollection, useRecordsByCollection } from "@/db/hooks";

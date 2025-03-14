@@ -110,7 +110,7 @@ export const MarkdownBox: React.FC<MarkdownBoxProps> = ({ uri }) => {
   };
 
   return (
-    <ScrollView style={{ padding: 10 }}>
+    <ScrollView className="p-4 bg-gray-100 rounded-lg">
       <Markdown rules={rules} markdownit={MarkdownInstance}>
         {content}
       </Markdown>

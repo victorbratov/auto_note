@@ -3,13 +3,13 @@ import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import { Slot } from "expo-router";
 import "../global.css";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { drizzle } from "drizzle-orm/expo-sqlite";
-import { openDatabaseSync } from "expo-sqlite";
+
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import migrations from "@/drizzle/migrations";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { View, Text } from "react-native";
 import { db, expoDb } from "@/db/db";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function RootLayout() {
   const { success, error } = useMigrations(db, migrations);
@@ -41,7 +41,9 @@ export default function RootLayout() {
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ClerkLoaded>
         <SafeAreaProvider>
-          <Slot />
+          <GestureHandlerRootView style={{ flex: 1 }} className="flex-1">
+            <Slot />
+          </GestureHandlerRootView>
         </SafeAreaProvider>
       </ClerkLoaded>
     </ClerkProvider>

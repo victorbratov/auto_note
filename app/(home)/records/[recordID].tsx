@@ -1,31 +1,21 @@
-import { Pressable } from "react-native";
-import { Link } from "expo-router";
+import { Pressable, Switch } from "react-native";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { Text, View, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { getRecordById } from "@/db/quieries";
-import { Record } from "@/db/schema";
-import { AudioPlayer } from "@/components/AudioPlayer";
-
-import { ScrollView } from "react-native";
 import { MarkdownBox } from "@/components/MarkdownBox";
 import { TextBox } from "@/components/TextBox";
+import { AudioPlayer } from "@/components/AudioPlayer";
+import { useRecord } from "@/db/hooks";
 
 export default function RecordPage() {
   const { recordID } = useLocalSearchParams();
-  const [record, setRecord] = useState<Record | null>(null);
-  useEffect(() => {
-    const loadRecord = async () => {
-      const recordData = await getRecordById(Number(recordID));
-      if (recordData) {
-        setRecord(recordData);
-      }
-    };
-    loadRecord();
-  }, [recordID]);
+  const router = useRouter();
+  const [showMarkdown, setShowMarkdown] = useState(true);
+  
+  const record = useRecord(Number(recordID));
 
   if (!record) {
     return (
@@ -35,25 +25,58 @@ export default function RecordPage() {
     );
   }
 
+  const handleGoBack = () => {
+    if (record.collectionId) {
+      router.push(`/collections/${record.collectionId}`);
+    } else {
+      router.push("/");
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" backgroundColor="#FDE047" />
       <View className="bg-yellow-300 rounded-b-3xl">
         <View className="flex-row items-center p-4">
-          <Link href="../" asChild>
-            <Pressable className="mr-4">
-              <Ionicons name="arrow-back" size={24} color="black" />
-            </Pressable>
-          </Link>
-          <Text className="text-black text-3xl font-bold">{record.name}</Text>
+          <Pressable onPress={handleGoBack} className="mr-4">
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </Pressable>
+          <Text className="text-black text-3xl font-bold">
+            {record.name}
+          </Text>
         </View>
       </View>
 
-      <ScrollView className="flex-1 p-4">
+      <ScrollView className="p-4 flex-1">
+        {/* Audio Player */}
         <AudioPlayer audioUri={record.audioUri} />
-        <View className="h-px bg-gray-200 w-full mb-6" />
-        <MarkdownBox uri={record.markdownUri!} />
-        <TextBox uri={record.textUri!} />
+        
+        {/* Content Toggle */}
+        <View className="flex-row justify-between items-center mb-4 bg-gray-100 p-3 rounded-t-lg">
+          <Text className="text-lg font-bold">
+            {showMarkdown ? "Notes" : "Transcription"}
+          </Text>
+          <View className="flex-row items-center">
+            <Text className="mr-2 text-gray-600">Transcription</Text>
+            <Switch
+              trackColor={{ false: "#767577", true: "#FDE047" }}
+              thumbColor={showMarkdown ? "#F59E0B" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={() => setShowMarkdown(!showMarkdown)}
+              value={showMarkdown}
+            />
+            <Text className="ml-2 text-gray-600">Notes</Text>
+          </View>
+        </View>
+        
+        {/* Content Display */}
+        <View className="mb-10">
+          {showMarkdown && record.markdownUri ? (
+            <MarkdownBox uri={record.markdownUri} />
+          ) : (
+            <TextBox uri={record.textUri || ""} />
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
