@@ -1,21 +1,62 @@
-import { Pressable, Switch } from "react-native";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Text, View, ScrollView } from "react-native";
+import { Text, View, ScrollView, Pressable, Switch } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { MarkdownBox } from "@/components/MarkdownBox";
 import { TextBox } from "@/components/TextBox";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { useRecord } from "@/db/hooks";
+import * as FileSystem from 'expo-file-system';
 
 export default function RecordPage() {
   const { recordID } = useLocalSearchParams();
   const router = useRouter();
   const [showMarkdown, setShowMarkdown] = useState(true);
-  
+
   const record = useRecord(Number(recordID));
+
+
+  useEffect(() => {
+    console.log("effect function");
+    if (record && !record.textUri && record.audioUri) {
+      console.log("fetching text from audio");
+
+      FileSystem.getInfoAsync(record.audioUri)
+        .then(async (fileInfo) => {
+          if (!fileInfo.exists) {
+            console.error("File does not exist:", record.audioUri);
+            return;
+          }
+
+          console.log("File exists, uploading...");
+
+          // Use FileSystem.uploadAsync for uploading the file
+          const url = "http://localhost:8080/upload";  // Your upload endpoint
+          const fieldName = "uploadfile";  // The field name expected by the server
+          const mimeType = "audio/m4a";  // MIME type of the file
+
+          try {
+            const response = await FileSystem.uploadAsync(url, record.audioUri!, {
+              httpMethod: "POST",  // POST method
+              uploadType: FileSystem.FileSystemUploadType.MULTIPART,  // Multipart upload
+              fieldName: fieldName,  // The field name in the form-data
+              mimeType: mimeType,  // The MIME type of the file
+            });
+
+            // Handle the response
+            const responseData = response.body;
+            console.log("File uploaded successfully:", responseData);
+          } catch (error) {
+            console.error("Error uploading file:", error);
+          }
+        })
+        .catch(error => {
+          console.error("Error getting file info:", error);
+        });
+    }
+  }, [record]);
 
   if (!record) {
     return (
@@ -50,7 +91,7 @@ export default function RecordPage() {
       <ScrollView className="p-4 flex-1">
         {/* Audio Player */}
         <AudioPlayer audioUri={record.audioUri} />
-        
+
         {/* Content Toggle */}
         <View className="flex-row justify-between items-center mb-4 bg-gray-100 p-3 rounded-t-lg">
           <Text className="text-lg font-bold">
@@ -68,13 +109,13 @@ export default function RecordPage() {
             <Text className="ml-2 text-gray-600">Notes</Text>
           </View>
         </View>
-        
+
         {/* Content Display */}
         <View className="mb-10">
           {showMarkdown && record.markdownUri ? (
             <MarkdownBox uri={record.markdownUri} />
           ) : (
-            <TextBox uri={record.textUri || ""} />
+            <TextBox uri={record.textUri!} />
           )}
         </View>
       </ScrollView>
