@@ -9,7 +9,7 @@ export const transcribe = (record: Record, token: Promise<string | null>) => {
     .then(async (fileInfo) => {
       if (!fileInfo.exists) {
         console.error("File does not exist:", record.audioUri);
-        return;
+        throw new Error("File does not exist");
       }
 
       console.log("File exists, uploading...");
@@ -25,9 +25,7 @@ export const transcribe = (record: Record, token: Promise<string | null>) => {
           uploadType: FileSystem.FileSystemUploadType.MULTIPART,  // Multipart upload
           fieldName: fieldName,  // The field name in the form-data
           mimeType: mimeType, // The MIME type of the file
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${await token}` }
         });
 
         if (response.status !== 200) {
@@ -42,10 +40,11 @@ export const transcribe = (record: Record, token: Promise<string | null>) => {
         console.log("File uploaded successfully:", responseData);
       } catch (error) {
         console.error("Error uploading file:", error);
+        throw error;
       }
     })
     .catch(error => {
       console.error("Error getting file info:", error);
+      throw error;
     });
-
 };

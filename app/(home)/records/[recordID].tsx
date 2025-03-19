@@ -9,22 +9,27 @@ import { TextBox } from "@/components/TextBox";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { useRecord } from "@/db/hooks";
 import { useAuth } from "@clerk/clerk-react";
-import { transcribe } from "./utils";
+import { transcribe } from "@/utils/utils";
 
 export default function RecordPage() {
   const { recordID } = useLocalSearchParams();
   const router = useRouter();
   const [showMarkdown, setShowMarkdown] = useState(true);
   const { getToken } = useAuth();
+  const [gettingText, setGettingText] = useState(false);
 
   const record = useRecord(Number(recordID));
 
-
   useEffect(() => {
     console.log("effect function");
-    if (record && !record.textUri && record.audioUri) {
+    if (record && !record.textUri && record.audioUri && !gettingText) {
+      setGettingText(true);
       console.log("fetching text from audio");
-      transcribe(record, getToken());
+      try {
+        transcribe(record, getToken());
+      } catch (error) {
+        setGettingText(false);
+      }
     }
   }, [record]);
 
@@ -34,7 +39,7 @@ export default function RecordPage() {
         <Text>Record not found</Text>
         <Link href="../" asChild>
           <TouchableOpacity>
-            Back
+            <Text>Back</Text>
           </TouchableOpacity>
         </Link>
       </View>
@@ -87,8 +92,8 @@ export default function RecordPage() {
 
         {/* Content Display */}
         <View className="mb-10">
-          {showMarkdown && record.markdownUri ? (
-            <MarkdownBox uri={record.markdownUri} />
+          {showMarkdown ? (
+            <MarkdownBox uri={record.markdownUri!} />
           ) : (
             <TextBox uri={record.textUri!} />
           )}
