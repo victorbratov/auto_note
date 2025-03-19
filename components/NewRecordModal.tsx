@@ -1,38 +1,8 @@
 import React, { useState } from "react";
 import { Modal, View, Text, TextInput, TouchableOpacity } from "react-native";
-import * as FileSystem from "expo-file-system";
 import { Recorder } from "@/audio/recorder";
 import { createRecord } from "@/db/hooks";
 
-async function createMockFiles(recordName: string) {
-  // Ensure directories exist
-  await FileSystem.makeDirectoryAsync(
-    `${FileSystem.documentDirectory}markdown`,
-    { intermediates: true },
-  );
-  await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}text`, {
-    intermediates: true,
-  });
-
-  const timestamp = new Date().toISOString();
-  const sanitizedName = recordName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-
-  // Create markdown file
-  const mdPath = `${FileSystem.documentDirectory}markdown/${sanitizedName}.md`;
-  const mdContent = `# ${recordName}\n\nCreated on: ${timestamp}\n\n## Summary\nThis is an auto-generated markdown file for the record "${recordName}"\n\n## Math Examples\n\nSimple equation: $a+b=c$\n\nQuadratic formula: $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$\n\nIntegral calculus: $\\int_{a}^{b} f(x) \\, dx = F(b) - F(a)$\n\nMaxwell's equations: $\\nabla \\times \\vec{E} = -\\frac{\\partial \\vec{B}}{\\partial t}$\n\n## Notes\n- First point\n- Second point`;
-
-  // Create text file
-  const txtPath = `${FileSystem.documentDirectory}text/${sanitizedName}.txt`;
-  const txtContent = `${recordName}\n\nCreated: ${timestamp}\n\nTranscription will appear here.`;
-
-  await FileSystem.writeAsStringAsync(mdPath, mdContent);
-  await FileSystem.writeAsStringAsync(txtPath, txtContent);
-
-  return {
-    markdownUri: mdPath,
-    textUri: txtPath,
-  };
-}
 interface NewRecordModalProps {
   visible: boolean;
   onClose: () => void;
@@ -64,16 +34,11 @@ export function NewRecordModal({
       const uri = await recorder.stopRecording();
       setIsRecording(false);
 
-      // Create mock files
-      const { markdownUri, textUri } = await createMockFiles(name.trim());
-
       // Create a new record in the database
       await createRecord({
         name: name.trim(),
         collectionId: collectionId,
         audioUri: uri,
-        markdownUri,
-        textUri,
       });
 
       // Reset and close

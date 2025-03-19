@@ -8,6 +8,7 @@ import { MarkdownBox } from "@/components/MarkdownBox";
 import { TextBox } from "@/components/TextBox";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { useRecord } from "@/db/hooks";
+import { updateRecord } from "@/db/quieries";
 import * as FileSystem from 'expo-file-system';
 
 export default function RecordPage() {
@@ -47,6 +48,10 @@ export default function RecordPage() {
 
             // Handle the response
             const responseData = response.body;
+            const transctipt = JSON.parse(responseData).transcript;
+            const textUri = record.audioUri?.replace(".m4a", ".txt");
+            FileSystem.writeAsStringAsync(textUri!, transctipt);
+            updateRecord(record.id, { textUri: textUri });
             console.log("File uploaded successfully:", responseData);
           } catch (error) {
             console.error("Error uploading file:", error);
