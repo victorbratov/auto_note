@@ -20,19 +20,15 @@ const renderLatex = (latex: string) => {
     const cleanLatex = latex.trim();
 
     return (
-      <View
-        key={++LatexCount}
-        style={{ marginVertical: 5, alignItems: "center", width: "100%" }}
-      >
-        <MathView
-          math={cleanLatex}
-          style={{ alignSelf: "center" }}
-          resizeMode="contain"
-          onError={(error: any) =>
-            console.error("LaTeX rendering error:", error)
-          }
-        />
-      </View>
+      <MathView
+        key={LatexCount++}
+        math={cleanLatex}
+        style={{ alignSelf: "center" }}
+        resizeMode="contain"
+        onError={(error: any) =>
+          console.error("LaTeX rendering error:", error)
+        }
+      />
     );
   } catch (err) {
     console.error("Error rendering LaTeX:", err);

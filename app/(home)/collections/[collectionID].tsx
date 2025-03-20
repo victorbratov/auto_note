@@ -1,5 +1,5 @@
 import { Pressable, TouchableOpacity } from "react-native";
-import { Link, useLocalSearchParams } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,20 +9,26 @@ import Card from "@/components/Card";
 import { useCollection, useRecordsByCollection } from "@/db/hooks";
 import { NewRecordModal } from "@/components/NewRecordModal";
 import { AddButton } from "@/components/addButton";
-import { AudioPlayer } from "@/audio/player";
 
 export default function CollectionPage() {
   const { collectionID } = useLocalSearchParams();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const player = new AudioPlayer();
+  const router = useRouter();
 
   const collection = useCollection(Number(collectionID));
   const { data } = useRecordsByCollection(Number(collectionID));
+
+  const handleGoBack = () => {
+    router.push("/");
+  }
 
   if (!collection) {
     return (
       <View className="flex-1 justify-center items-center">
         <Text>Collection not found</Text>
+        <Pressable onPress={handleGoBack}>
+          <Text>Back</Text>
+        </Pressable>
       </View>
     );
   }
@@ -32,11 +38,9 @@ export default function CollectionPage() {
       <StatusBar style="dark" backgroundColor="#FDE047" />
       <View className="bg-yellow-300 rounded-b-3xl">
         <View className="flex-row items-center p-4">
-          <Link href="../" asChild>
-            <Pressable className="mr-4">
-              <Ionicons name="arrow-back" size={24} color="black" />
-            </Pressable>
-          </Link>
+          <Pressable onPress={handleGoBack} className="mr-4">
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </Pressable>
           <Text className="text-black text-3xl font-bold">
             {collection.name}
           </Text>

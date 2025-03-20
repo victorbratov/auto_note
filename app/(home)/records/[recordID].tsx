@@ -9,7 +9,7 @@ import { TextBox } from "@/components/TextBox";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { useRecord } from "@/db/hooks";
 import { useAuth } from "@clerk/clerk-react";
-import { transcribe } from "@/utils/utils";
+import { transcribe, summarize } from "@/utils/utils";
 
 export default function RecordPage() {
   const { recordID } = useLocalSearchParams();
@@ -17,11 +17,19 @@ export default function RecordPage() {
   const [showMarkdown, setShowMarkdown] = useState(true);
   const { getToken } = useAuth();
   const [gettingText, setGettingText] = useState(false);
+  const [gettingMarkdown, setGettingMarkdown] = useState(false);
 
   const record = useRecord(Number(recordID));
 
+  const handleGoBack = () => {
+    if (record.collectionId) {
+      router.push(`/collections/${record.collectionId}`);
+    } else {
+      router.push("/");
+    }
+  };
+
   useEffect(() => {
-    console.log("effect function");
     if (record && !record.textUri && record.audioUri && !gettingText) {
       setGettingText(true);
       console.log("fetching text from audio");
@@ -31,28 +39,29 @@ export default function RecordPage() {
         setGettingText(false);
       }
     }
-  }, [record]);
+    setGettingText(false);
+  }, [record?.audioUri]);
+
+  useEffect(() => {
+    if (record && record.textUri && !gettingText && !record.markdownUri && !gettingMarkdown) {
+      setGettingMarkdown(true);
+      console.log("fetching markdown from text");
+      summarize(record, getToken()).then(() => {
+        setGettingMarkdown(false);
+      });
+    }
+  }, [record?.textUri]);
 
   if (!record) {
     return (
       <View className="flex-1 justify-center items-center">
         <Text>Record not found</Text>
-        <Link href="../" asChild>
-          <TouchableOpacity>
-            <Text>Back</Text>
-          </TouchableOpacity>
-        </Link>
+        <Pressable onPress={handleGoBack}>
+          <Text>Back</Text>
+        </Pressable>
       </View>
     );
   }
-
-  const handleGoBack = () => {
-    if (record.collectionId) {
-      router.push(`/collections/${record.collectionId}`);
-    } else {
-      router.push("/");
-    }
-  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
