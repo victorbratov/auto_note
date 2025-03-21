@@ -1,3 +1,4 @@
+import { useColorScheme } from "nativewind";
 import React, { useState, useEffect } from "react";
 import { ScrollView, ActivityIndicator, Text, View } from "react-native";
 import Markdown from "react-native-markdown-display";
@@ -14,7 +15,7 @@ type MarkdownBoxProps = {
 
 var LatexCount = 0;
 
-const renderLatex = (latex: string) => {
+const renderLatex = (latex: string, color: string) => {
   try {
     // Clean the LaTeX string if needed
     const cleanLatex = latex.trim();
@@ -23,7 +24,7 @@ const renderLatex = (latex: string) => {
       <MathView
         key={LatexCount++}
         math={cleanLatex}
-        style={{ alignSelf: "center" }}
+        style={{ alignSelf: "center", color: color }}
         resizeMode="contain"
         onError={(error: any) =>
           console.error("LaTeX rendering error:", error)
@@ -40,6 +41,7 @@ export const MarkdownBox: React.FC<MarkdownBoxProps> = ({ uri }) => {
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { colorScheme } = useColorScheme();
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -73,7 +75,7 @@ export const MarkdownBox: React.FC<MarkdownBoxProps> = ({ uri }) => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View className="bg-white dark:bg-gray-700 rounded-lg" style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
       </View>
     );
@@ -81,7 +83,7 @@ export const MarkdownBox: React.FC<MarkdownBoxProps> = ({ uri }) => {
 
   if (error) {
     return (
-      <View style={{ padding: 10 }}>
+      <View className="bg-white dark:bg-gray-700 rounded-lg" style={{ padding: 10 }}>
         <Text style={{ color: "red" }}>Error loading content: {error}</Text>
       </View>
     );
@@ -89,7 +91,7 @@ export const MarkdownBox: React.FC<MarkdownBoxProps> = ({ uri }) => {
 
   if (!content) {
     return (
-      <View style={{ padding: 10 }}>
+      <View className="bg-white dark:bg-gray-700 rounded-lg" style={{ padding: 10 }}>
         <Text>No content available to display</Text>
       </View>
     );
@@ -98,16 +100,18 @@ export const MarkdownBox: React.FC<MarkdownBoxProps> = ({ uri }) => {
   // Define custom rules for rendering math content
   const rules = {
     math_inline: (node: any) => {
-      return renderLatex(node.content);
+      return renderLatex(node.content, colorScheme === "dark" ? "white" : "black");
     },
     math_block: (node: any) => {
-      return renderLatex(node.content);
+      return renderLatex(node.content, colorScheme === "dark" ? "white" : "black");
     },
   };
 
   return (
-    <ScrollView className="p-4 bg-gray-100 rounded-lg">
-      <Markdown rules={rules} markdownit={MarkdownInstance}>
+    <ScrollView className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+      <Markdown
+        style={{ body: { color: colorScheme === "dark" ? "white" : "black" } }}
+        rules={rules} markdownit={MarkdownInstance}>
         {content}
       </Markdown>
     </ScrollView>

@@ -1,6 +1,8 @@
 import * as FileSystem from "expo-file-system";
 import { Record } from "@/db/schema";
 import { updateRecord } from "@/db/quieries";
+import { getSetting } from "@/settings_store";
+import { useColorScheme } from "nativewind";
 
 
 
@@ -80,3 +82,9 @@ export const summarize = async (record: Record, token: Promise<string | null>) =
     throw error;
   }
 };
+
+
+export async function restartColor() {
+  const { setColorScheme } = useColorScheme();
+  setColorScheme(await getSetting("colorScheme")! as "light" | "dark");
+}

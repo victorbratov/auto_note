@@ -41,8 +41,8 @@ export function TextBox({ uri }: TextBoxProps) {
     );
 
   return (
-    <View className="bg-gray-100 p-4 rounded-lg">
-      <Text>{content}</Text>
+    <View className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+      <Text className="text-gray-800 dark:text-gray-200 text-lg">{content}</Text>
     </View>
   );
 }

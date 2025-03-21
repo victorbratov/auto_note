@@ -1,6 +1,6 @@
 import { useSignIn } from '@clerk/clerk-expo'
 import { Link, useRouter } from 'expo-router'
-import { Text, TextInput, Button, View } from 'react-native'
+import { Text, TextInput, Button, View, Pressable } from 'react-native'
 import React from 'react'
 
 export default function Page() {
@@ -39,25 +39,31 @@ export default function Page() {
   }, [isLoaded, emailAddress, password])
 
   return (
-    <View>
+    <View className="flex-1 justify-center p-4 bg-white">
       <TextInput
+        className="border border-gray-300 p-2 mb-4 rounded"
         autoCapitalize="none"
         value={emailAddress}
         placeholder="Enter email"
         onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
       />
       <TextInput
+        className="border border-gray-300 p-2 mb-4 rounded"
         value={password}
         placeholder="Enter password"
         secureTextEntry={true}
         onChangeText={(password) => setPassword(password)}
       />
-      <Button title="Sign in" onPress={onSignInPress} />
-      <View>
-        <Text>Don't have an account?</Text>
-        <Link href="/sign-up">
-          <Text>Sign up</Text>
-        </Link>
+      <Button
+        title="Sign in"
+        onPress={onSignInPress}
+        color="#FDDF47"
+      />
+      <View className="mt-4 flex-row justify-center">
+        <Text className="mr-2">Don't have an account?</Text>
+        <Pressable onPress={() => router.push('/sign-up')}>
+          <Text className="text-[#FDDF47]">Sign up</Text>
+        </Pressable>
       </View>
     </View>
   )

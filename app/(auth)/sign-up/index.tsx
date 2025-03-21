@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Text, TextInput, Button, View } from 'react-native'
 import { useSignUp } from '@clerk/clerk-expo'
 import { useRouter } from 'expo-router'
+import { Pressable } from 'react-native-gesture-handler'
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -65,36 +66,43 @@ export default function SignUpScreen() {
 
   if (pendingVerification) {
     return (
-      <>
-        <Text>Verify your email</Text>
+      <View className="flex-1 justify-center p-4 bg-white">
+        <Text className="text-lg font-bold mb-4">Verify your email</Text>
         <TextInput
+          className="border border-gray-300 p-2 mb-4 rounded"
           value={code}
           placeholder="Enter your verification code"
           onChangeText={(code) => setCode(code)}
         />
-        <Button title="Verify" onPress={onVerifyPress} />
-      </>
+        <Button title="Verify" onPress={onVerifyPress} color="#FDDF47" />
+      </View>
     )
   }
 
   return (
-    <View>
-      <>
-        <Text>Sign up</Text>
-        <TextInput
-          autoCapitalize="none"
-          value={emailAddress}
-          placeholder="Enter email"
-          onChangeText={(email) => setEmailAddress(email)}
-        />
-        <TextInput
-          value={password}
-          placeholder="Enter password"
-          secureTextEntry={true}
-          onChangeText={(password) => setPassword(password)}
-        />
-        <Button title="Continue" onPress={onSignUpPress} />
-      </>
+    <View className="flex-1 justify-center p-4 bg-white">
+      <Text className="text-lg font-bold mb-4">Sign up</Text>
+      <TextInput
+        className="border border-gray-300 p-2 mb-4 rounded"
+        autoCapitalize="none"
+        value={emailAddress}
+        placeholder="Enter email"
+        onChangeText={(email) => setEmailAddress(email)}
+      />
+      <TextInput
+        className="border border-gray-300 p-2 mb-4 rounded"
+        value={password}
+        placeholder="Enter password"
+        secureTextEntry={true}
+        onChangeText={(password) => setPassword(password)}
+      />
+      <Button title="Continue" onPress={onSignUpPress} color="#FDDF47" />
+      <View className="mt-4 flex-row justify-center">
+        <Text className="mr-2">Already have an account?</Text>
+        <Pressable onPress={() => router.push('/sign-in')}>
+          <Text className="text-[#FDDF47]">Sign in</Text>
+        </Pressable>
+      </View>
     </View>
   )
 }

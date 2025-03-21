@@ -19,14 +19,14 @@ const Card: React.FC<CardProps> = ({
   return (
     <CardWrapper
       onPress={onPress}
-      className={`bg-white rounded-lg shadow-md p-4 m-2 ${className}`}
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 m-2 ${className}`}
     >
       {title && (
-        <Text className="text-lg font-semibold text-gray-800 mb-2">
+        <Text className="text-lg font-semibold text-gray-800 dark:text-gray-50 mb-2">
           {title}
         </Text>
       )}
-      <View className="flex-1">{children}</View>
+      <View className="flex-1 gap-2">{children}</View>
     </CardWrapper>
   );
 };

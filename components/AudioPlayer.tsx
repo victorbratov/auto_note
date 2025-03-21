@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { AudioPlayer as AudioPlayerClass } from "@/audio/player";
+import { colorScheme } from "nativewind";
 
 const formatTime = (milliseconds: number): string => {
   const totalSeconds = Math.floor(milliseconds / 1000);
@@ -72,17 +73,27 @@ export function AudioPlayer({ audioUri }: AudioPlayerProps) {
   return (
     <View className="w-full px-4 my-6">
       {audioUri ? (
-        <View className="bg-white rounded-xl p-4 shadow-md">
+        <View className="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-md">
           <View className="flex-row">
             <Pressable
               onPress={togglePlayPause}
-              className="w-16 h-16 bg-yellow-300 rounded-full items-center justify-center mr-4"
+              className="w-16 h-16 bg-yellow-300 dark:bg-amber-400 rounded-full items-center justify-center mr-4"
             >
-              <Ionicons
-                name={playbackStatus === "playing" ? "pause" : "play"}
-                size={32}
-                color="black"
-              />
+              {colorScheme.get() == "light" ? (
+                <Ionicons
+                  name={playbackStatus === "playing" ? "pause" : "play"}
+                  size={32}
+                  color="black"
+                />
+
+              ) : (
+                <Ionicons
+                  name={playbackStatus === "playing" ? "pause" : "play"}
+                  size={32}
+                  color="#e5e7eb"
+                />
+
+              )}
             </Pressable>
 
             <View className="flex-1 justify-center">
@@ -116,17 +127,17 @@ export function AudioPlayer({ audioUri }: AudioPlayerProps) {
               >
                 <View className="w-full h-2 bg-gray-200 rounded-full">
                   <View
-                    className="h-full bg-yellow-300 rounded-full"
+                    className="h-full bg-yellow-300 dark:bg-amber-400 rounded-full"
                     style={{ width: `${(position / duration) * 100}%` }}
                   />
                 </View>
               </Pressable>
 
               <View className="flex-row justify-between mt-0.5">
-                <Text className="text-xs text-gray-500">
+                <Text className="text-xs text-gray-500 dark:text-gray-200">
                   {formatTime(position)}
                 </Text>
-                <Text className="text-xs text-gray-500">
+                <Text className="text-xs text-gray-500 dark:text-gray-200">
                   {formatTime(duration)}
                 </Text>
               </View>
