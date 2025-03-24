@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import { collections, records } from "./schema";
 import { Collection, InsertCollection, Record, InsertRecord } from "./schema";
 import { db } from "./db";
@@ -50,6 +50,13 @@ export async function deleteCollection(
 // Record queries
 export async function getAllRecords(): Promise<Record[]> {
   return await db.select().from(records);
+}
+
+export async function getRecordsLike(quiery: string): Promise<Record[]> {
+  return await db
+    .select()
+    .from(records)
+    .where(like(records.name, `%${quiery}%`));
 }
 
 export async function getRecordById(id: number): Promise<Record | undefined> {

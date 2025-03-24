@@ -15,7 +15,6 @@ const Card: React.FC<CardProps> = ({
   className = '',
 }) => {
   const CardWrapper = onPress ? TouchableOpacity : View;
-
   return (
     <CardWrapper
       onPress={onPress}
@@ -26,9 +25,8 @@ const Card: React.FC<CardProps> = ({
           {title}
         </Text>
       )}
-      <View className="flex-1 gap-2">{children}</View>
+      <View className="flex-1">{children}</View>
     </CardWrapper>
   );
 };
-
 export default Card;

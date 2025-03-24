@@ -16,7 +16,6 @@ import { restartColor } from "@/utils/utils";
 export default function RootLayout() {
   const { success, error } = useMigrations(db, migrations);
   useDrizzleStudio(expoDb);
-  const insets = useSafeAreaInsets()
   initializeSettings()
 
   restartColor();

@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
-import { Text, View, Image, TouchableOpacity, ScrollView } from "react-native";
+import { Text, View, Image, TouchableOpacity, ScrollView, TextInput, Pressable } from "react-native";
 import { Link, useRouter } from "expo-router";
 import Card from "@/components/Card";
 import { AddButton } from "@/components/addButton";
 import { NewCollectionModal } from "@/components/NewCollectionModal";
 import { useCollections } from "@/db/hooks";
+import { EvilIcons } from "@expo/vector-icons";
+
 
 export default function Page() {
   const { user, isLoaded } = useUser();
@@ -15,6 +17,8 @@ export default function Page() {
   const userAvatarUrl = user?.hasImage
     ? user?.imageUrl
     : "../../assets/images/react-logo.png";
+
+  const [query, setQuery] = useState("");
 
   const insets = useSafeAreaInsets();
 
@@ -43,6 +47,24 @@ export default function Page() {
               </TouchableOpacity>
             </View>
           </View>
+          <Card className="flex-[0.05] p-4 rounded-xl">
+            <View className="flex-row items-center border border-gray-300 p-3 rounded-xl w-full">
+              <TextInput
+                className="flex-1 text-gray-800 dark:text-gray-200"
+                autoCapitalize="none"
+                value={query}
+                placeholder="search..."
+                placeholderTextColor="#ffffff"
+                onChangeText={(text) => setQuery(text)}
+              />
+              <Pressable
+                className="rounded-full"
+                onPress={() => router.push(`/search?query=${query}`)}
+              >
+                <EvilIcons name="search" size={10} color="white" />
+              </Pressable>
+            </View>
+          </Card>
           <ScrollView className="p-4 flex-1 gap-4 bg-white dark:bg-gray-900">
             {data.map((collection) => (
               <Link
